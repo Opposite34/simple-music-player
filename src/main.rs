@@ -71,7 +71,7 @@ fn main() {
 
         //VOLUME CONTROL
         //Based on most keyboard layouts, may not work in some layout such as JIS
-        if keys.contains(&Keycode::Up) || keys.contains(&Keycode::Minus) {
+        if keys.contains(&Keycode::Up) || keys.contains(&Keycode::Equal) {
             if keys.contains(&Keycode::LShift) {
                 vol += VOLUME_DELTA_SMALL;
             }
@@ -81,7 +81,7 @@ fn main() {
             vol_key_pressed = true;
         }
         
-        if keys.contains(&Keycode::Down) || keys.contains(&Keycode::Equal){
+        if keys.contains(&Keycode::Down) || keys.contains(&Keycode::Minus){
             if keys.contains(&Keycode::LShift) {
                 vol -= VOLUME_DELTA_SMALL;
             }
