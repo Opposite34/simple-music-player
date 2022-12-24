@@ -25,20 +25,20 @@ const VOLUME_MAX: f32 = 2.0;
 
 const VOLUME_CTRL_SLEEP: Duration = Duration::from_millis(100);
 
-fn main() -> std::io::Result<()>{
+fn main() {
     let(_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink: Sink = Sink::try_new(&stream_handle).unwrap();
     
     //get user input for music path
     let mut input: String = String::new();
 
-    print!("Please input path to music: ");
+    println!("Please input path to music: ");
     stdin().read_line(&mut input).unwrap();
     input = input.trim().to_string();
 
     let music_path: &Path = Path::new(&input);
 
-    let file: File = File::open(music_path)?;
+    let file: File = File::open(music_path).expect("Could not open the file specified");
     let buf: BufReader<File> = BufReader::new(file);
 
     let source: Decoder<BufReader<File>> = Decoder::new(buf).unwrap();
@@ -116,5 +116,4 @@ fn main() -> std::io::Result<()>{
     sink.sleep_until_end();
 
     println!("Exiting");
-    Ok(())
 }
