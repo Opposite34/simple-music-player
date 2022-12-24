@@ -8,7 +8,10 @@ use rodio::{Decoder, OutputStream, Sink};
 
 use device_query::{DeviceQuery, DeviceState, Keycode};
 
-const VOLUME_DELTA: f32 = 0.05;
+//for changing in small or large intervals
+const VOLUME_DELTA_SMALL: f32 = 0.05;
+const VOLUME_DELTA: f32 = 0.2;
+
 const VOLUME_MIN: f32 = 0.0;
 const VOLUME_MAX: f32 = 2.0;
 
@@ -34,6 +37,7 @@ fn main() -> std::io::Result<()>{
     while !sink.empty() {
         let keys: Vec<Keycode> = device_state.get_keys();
         
+        // PAUSE/PLAY
         if keys.contains(&Keycode::Space) && !space_hold {
             space_hold = true;
             if sink.is_paused() {
@@ -48,14 +52,27 @@ fn main() -> std::io::Result<()>{
         else if !keys.contains(&Keycode::Space) {
             space_hold = false;
         }
-        
-        if keys.contains(&Keycode::Left) {
-            vol -= VOLUME_DELTA;
+
+        //VOLUME CONTROL
+        //Based on most keyboard layouts, may not work in some layout such as JIS
+        if keys.contains(&Keycode::Up) || keys.contains(&Keycode::Minus) {
+            if keys.contains(&Keycode::LShift) {
+                vol += VOLUME_DELTA_SMALL;
+            }
+            else {
+                vol += VOLUME_DELTA;
+            }
             vol_key_pressed = true;
         }
         
-        if keys.contains(&Keycode::Right) {
-            vol += VOLUME_DELTA;
+        if keys.contains(&Keycode::Down) || keys.contains(&Keycode::Equal){
+            if keys.contains(&Keycode::LShift) {
+                vol -= VOLUME_DELTA_SMALL;
+            }
+            else {
+                vol -= VOLUME_DELTA;
+            }
+
             vol_key_pressed = true;
         }
         
@@ -68,13 +85,20 @@ fn main() -> std::io::Result<()>{
             if vol_not_clamped == vol {
                 sink.set_volume(vol);
                 
-                println!("Current Volume: {:.2}", sink.volume());
+                println!("Volume: {:.2}", sink.volume());
                 sleep(VOLUME_CTRL_SLEEP);
             }
+        }
+
+        //STOP THE PLAYER
+        if keys.contains(&Keycode::Escape) {
+            sink.stop();
         }
     }
     
     //block the ending of the current thread (just in case)
     sink.sleep_until_end();
+
+    println!("Exiting");
     Ok(())
 }
