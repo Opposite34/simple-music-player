@@ -8,7 +8,7 @@ use rodio::{Decoder, OutputStream, Sink};
 
 use device_query::{DeviceQuery, DeviceState, Keycode};
 
-const VOLUME_INCREMENT: f32 = 0.05;
+const VOLUME_DELTA: f32 = 0.05;
 const VOLUME_MIN: f32 = 0.0;
 const VOLUME_MAX: f32 = 2.0;
 
@@ -24,15 +24,16 @@ fn main() -> std::io::Result<()>{
 
     let source = Decoder::new(buf).unwrap();
     sink.append(source);
-    let mut vol = sink.volume(); 
-
+    
     let device_state = DeviceState::new();
-
+    
+    let mut vol = sink.volume();
+    let mut vol_key_pressed = false;
     let mut space_hold = false;
-   
+    
     while !sink.empty() {
         let keys: Vec<Keycode> = device_state.get_keys();
-
+        
         if keys.contains(&Keycode::Space) && !space_hold {
             space_hold = true;
             if sink.is_paused() {
@@ -47,22 +48,32 @@ fn main() -> std::io::Result<()>{
         else if !keys.contains(&Keycode::Space) {
             space_hold = false;
         }
-
+        
         if keys.contains(&Keycode::Left) {
-            vol = (((vol - VOLUME_INCREMENT) * 100.0).round() / 100.0).clamp(VOLUME_MIN, VOLUME_MAX);
-            sink.set_volume(vol);
-            println!("Volume: {:.2}", vol);
-            sleep(VOLUME_CTRL_SLEEP);
+            vol -= VOLUME_DELTA;
+            vol_key_pressed = true;
         }
-
+        
         if keys.contains(&Keycode::Right) {
-            vol = (((vol + VOLUME_INCREMENT) * 100.0).round() / 100.0).clamp(VOLUME_MIN, VOLUME_MAX);
-            sink.set_volume(vol);
-            println!("Volume: {:.2}", vol);
-            sleep(VOLUME_CTRL_SLEEP);
+            vol += VOLUME_DELTA;
+            vol_key_pressed = true;
+        }
+        
+        if vol_key_pressed {
+            vol_key_pressed = false;
+
+            let vol_not_clamped = (vol * 100.0).round() / 100.0;
+            vol = vol_not_clamped.clamp(VOLUME_MIN, VOLUME_MAX);
+            
+            if vol_not_clamped == vol {
+                sink.set_volume(vol);
+                
+                println!("Current Volume: {:.2}", sink.volume());
+                sleep(VOLUME_CTRL_SLEEP);
+            }
         }
     }
-
+    
     //block the ending of the current thread (just in case)
     sink.sleep_until_end();
     Ok(())
