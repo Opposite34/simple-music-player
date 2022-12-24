@@ -1,11 +1,19 @@
+//sleeps
 use std::thread::sleep;
 use std::time::Duration;
 
+//file path
 use std::fs::File;
+use std::path::Path;
+
+//input
+use std::io::stdin;
 use std::io::BufReader;
 
+//audio
 use rodio::{Decoder, OutputStream, Sink};
 
+//keyboard inputs
 use device_query::{DeviceQuery, DeviceState, Keycode};
 
 //for changing in small or large intervals
@@ -21,8 +29,16 @@ fn main() -> std::io::Result<()>{
     let(_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink: Sink = Sink::try_new(&stream_handle).unwrap();
     
-    //your music path here
-    let file: File = File::open("music/the_25th_hour.wav")?;
+    //get user input for music path
+    let mut input: String = String::new();
+
+    print!("Please input path to music: ");
+    stdin().read_line(&mut input).unwrap();
+    input = input.trim().to_string();
+
+    let music_path: &Path = Path::new(&input);
+
+    let file: File = File::open(music_path)?;
     let buf: BufReader<File> = BufReader::new(file);
 
     let source: Decoder<BufReader<File>> = Decoder::new(buf).unwrap();
