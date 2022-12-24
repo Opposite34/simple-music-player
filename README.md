@@ -5,7 +5,7 @@ It's for me to understand Rust a bit more. I admit my codes can be messy at time
 
 ## Current Usage
 - Input the path (can be relative) to the music file you want to play the song 
-- Use arrow keys or `-` and `=` keys to change the volume
+- Use arrow keys or `-` and `=` keys to change the volume (use shift to change the volume in small increment/decrement)
 - Use spacebar to pause/play the song
 - Exit with `esc`
 
