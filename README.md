@@ -8,8 +8,3 @@ It's for me to understand Rust a bit more. I admit my codes can be messy at time
 - Use arrow keys or `-` and `=` keys to change the volume (use shift to change the volume in small increment/decrement)
 - Use spacebar to pause/play the song
 - Exit with `esc`
-
-## TODOs
-- [ ] Open as folder and allow prev/next
-- [ ] TUI
-- [ ] Show total duration and status of the song (might be difficult since it's not built-in to rodio)
